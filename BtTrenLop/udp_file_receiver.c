@@ -30,19 +30,19 @@ int main(int argc, char *argv[])
                        (struct sockaddr *)&sender_addr, &sender_addr_len);
     char fileName[50];
     sprintf(fileName, "new_%s", name);
-    FILE *fptr = fopen(fileName, "a");
+    FILE *fptr = fopen(fileName, "w");
 
     // Receive file content
     while (1)
     {
         ret = recvfrom(receiver, buf, sizeof(buf), 0,
                        (struct sockaddr *)&sender_addr, &sender_addr_len);
-        if (ret < sizeof(buf))
-            buf[ret] = 0;
+        if (ret <= 0)
+            break;
         printf("%d bytes received %s: %s\n", ret,
                inet_ntoa(sender_addr.sin_addr), buf);
 
-        fprintf(fptr, "%s", buf);
+        fwrite(buf, 1, ret, fptr);
     }
 
     fclose(fptr);
